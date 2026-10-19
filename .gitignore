@@ -1,0 +1,26 @@
+# Android / Gradle
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Raw traces are large; keep them locally (course says store them, not submit them)
+laptop/logs/
+Bonus-PartC/results/
+traces/
+
+# OS
+.DS_Store
+Thumbs.db
