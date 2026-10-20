@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.net.Inet4Address
+import java.net.Inet6Address
 import java.net.NetworkInterface
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -73,12 +74,21 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread { statsView.text = txt }
     }
 
-    private fun localIp(): String? =
-        NetworkInterface.getNetworkInterfaces().toList()
-            .filter { it.isUp && !it.isLoopback }
-            .flatMap { it.inetAddresses.toList() }
-            .firstOrNull { it is Inet4Address }
-            ?.hostAddress
+    /**
+     * Address of wlan0 that the glasses can reach. Prefers IPv4; falls back to a global IPv6
+     * (in [brackets] for URLs) because some hotspots (e.g. iPhone on T-Mobile) are IPv6-only.
+     * Only wlan0 is considered: v4-wlan0 (464XLAT, 192.0.0.4) and rmnet are not reachable.
+     */
+    private fun localIp(): String? {
+        val addrs = NetworkInterface.getByName("wlan0")?.inetAddresses?.toList() ?: return null
+        addrs.firstOrNull { it is Inet4Address }?.let { return it.hostAddress }
+        val v6 = addrs.filterIsInstance<Inet6Address>()
+            .filter { !it.isLinkLocalAddress && !it.isSiteLocalAddress }
+            // Prefer the stable SLAAC address (EUI-64, contains ff:fe) over rotating privacy addresses.
+            .sortedByDescending { it.hostAddress?.contains("ff:fe") == true }
+            .firstOrNull() ?: return null
+        return "[" + v6.hostAddress!!.substringBefore('%') + "]"
+    }
 
     override fun onDestroy() {
         super.onDestroy()
