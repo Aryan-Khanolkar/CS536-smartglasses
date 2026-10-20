@@ -7,10 +7,13 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.util.Size
+import android.view.KeyEvent
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -61,17 +64,30 @@ class MainActivity : AppCompatActivity() {
         val prefs = getPreferences(MODE_PRIVATE)
         urlInput.setText(prefs.getString("url", "ws://192.168.1.100:8080/ingest"))
 
-        toggle.setOnClickListener {
-            if (streaming) stopStreaming() else {
-                prefs.edit().putString("url", urlInput.text.toString()).apply()
-                startStreaming(urlInput.text.toString())
-            }
-        }
+        toggle.setOnClickListener { toggleStreaming() }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         if (hasCameraPermission()) startCamera()
         else ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQ_CAMERA)
+    }
+
+    private fun toggleStreaming() {
+        if (streaming) stopStreaming() else {
+            getPreferences(MODE_PRIVATE).edit().putString("url", urlInput.text.toString()).apply()
+            startStreaming(urlInput.text.toString())
+        }
+    }
+
+    /** The glasses have no touchscreen: a temple-touchpad tap arrives as DPAD_CENTER/ENTER. */
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> {
+                if (event.action == KeyEvent.ACTION_UP) toggleStreaming()
+                return true
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     private fun startStreaming(url: String) {
@@ -87,6 +103,7 @@ class MainActivity : AppCompatActivity() {
         toggle.text = "Start"
     }
 
+    @androidx.annotation.OptIn(ExperimentalCamera2Interop::class)
     private fun startCamera() {
         val providerFuture = ProcessCameraProvider.getInstance(this)
         providerFuture.addListener({
@@ -104,10 +121,13 @@ class MainActivity : AppCompatActivity() {
                 .build()
             analysis.setAnalyzer(cameraExecutor, ::onFrame)
 
-            // Glasses usually expose a single camera; fall back to whatever exists.
+            // INMO Air 2 exposes two back-facing cameras; the RGB camera is ID "0" (per INMO docs).
+            val rgbCamera = CameraSelector.Builder()
+                .addCameraFilter { infos -> infos.filter { Camera2CameraInfo.from(it).cameraId == RGB_CAMERA_ID } }
+                .build()
             val selector = when {
+                provider.hasCamera(rgbCamera) -> rgbCamera
                 provider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA) -> CameraSelector.DEFAULT_BACK_CAMERA
-                provider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) -> CameraSelector.DEFAULT_FRONT_CAMERA
                 else -> {
                     statsView.text = "no camera found via CameraX"
                     return@addListener
@@ -118,6 +138,8 @@ class MainActivity : AppCompatActivity() {
                 provider.unbindAll()
                 provider.bindToLifecycle(this, selector, preview, analysis)
                 statsView.text = "camera ok, tap Start to stream"
+                // `adb shell am start -n .../.MainActivity --ez autostart true` streams without any tap.
+                if (intent.getBooleanExtra("autostart", false) && !streaming) toggleStreaming()
             } catch (e: Exception) {
                 Log.e(TAG, "bind failed", e)
                 statsView.text = "camera bind failed: ${e.message}"
@@ -177,5 +199,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "SGStream"
         private const val REQ_CAMERA = 1
+        private const val RGB_CAMERA_ID = "0"
     }
 }
