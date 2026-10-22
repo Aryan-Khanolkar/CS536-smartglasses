@@ -62,6 +62,8 @@ class MainActivity : AppCompatActivity() {
         toggle = findViewById(R.id.toggle)
 
         val prefs = getPreferences(MODE_PRIVATE)
+        // `--es url ws://...` sets the relay address without typing on the glasses; it's saved as the new default.
+        intent.getStringExtra("url")?.let { prefs.edit().putString("url", it).apply() }
         urlInput.setText(prefs.getString("url", "ws://192.168.1.100:8080/ingest"))
 
         toggle.setOnClickListener { toggleStreaming() }
@@ -138,7 +140,7 @@ class MainActivity : AppCompatActivity() {
                 provider.unbindAll()
                 provider.bindToLifecycle(this, selector, preview, analysis)
                 statsView.text = "camera ok, tap Start to stream"
-                // `adb shell am start -n .../.MainActivity --ez autostart true` streams without any tap.
+                // `adb shell am start -n .../.MainActivity --ez autostart true [--es url ws://...]` streams without any tap.
                 if (intent.getBooleanExtra("autostart", false) && !streaming) toggleStreaming()
             } catch (e: Exception) {
                 Log.e(TAG, "bind failed", e)
