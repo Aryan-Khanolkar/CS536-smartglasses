@@ -49,6 +49,40 @@ Scope: rigid objects with clear edges, roughly 10 cm to 2 m, indoors at 0.5 to 3
 
 Networking angle (Parts C and D): the models are too heavy for the phone, so each tap is an offloading decision. Compare inference on phone, laptop (edge) and cloud, and different upload resolutions. Measure tap-to-result latency (upload, inference, return), measurement error against a tape measure, throughput and failures over Wi-Fi and 5G. Part D: pick placement and resolution per tap from measured RTT and throughput to meet a latency budget, with on-phone fallback when the link drops.
 
+## Part B build plan (once approved)
+
+Data path, with the return leg new:
+
+```
+Glasses --tap + frame--> Phone relay --> Laptop inference server (SAM + Depth Base + geometry)
+   ^                                              |
+   +------------- result + outline <--------------+
+```
+
+| Part | Work | Status |
+| --- | --- | --- |
+| Glasses app | Crosshair overlay; right-touchpad tap sends a "measure" request with the current frame; show "W x H cm, D m" + outline; double tap cycles SAM's 3 outlines | New |
+| Phone relay | Carry messages both ways (today it forwards video one way) | Small change |
+| Laptop server | Turn `feasibility/measure_test.py` logic into a service: frame in, undistort + SAM (crosshair point) + Depth Base + geometry + reference correction, result out | Logic proven in feasibility |
+| Settings + control (required by the handout) | Settings: server URL, model (Small/Base), upload resolution, reference object. Runtime start / stop / pause | New |
+| Reference setup | One-time "aim at an object of known size" to fit the scale+shift correction | New UI, same math |
+
+Milestones (submission Nov 30, demo Dec 4):
+
+| By | Milestone |
+| --- | --- |
+| Nov 2 | End-to-end MVP: tap on glasses -> laptop measures -> number shows on glasses |
+| Nov 9 | Double-tap outline cycling, settings, start/stop/pause, reference setup, "nothing found" handling |
+| Nov 16 | Speed work + tap-to-result latency logging (upload / inference / return). Mid-term one-pager due |
+| Nov 16-28 | Part C field runs (PAL3.0 and 5G) use this app, so Part B must be stable by mid-Nov |
+| Nov 30 | Tag `BONUS-PartB`, submit; demo rehearsal on the OnePlus hotspot |
+
+Risks:
+- **Speed:** ~7.5 s per tap on the laptop CPU (SAM ~3.8 s, Depth Base ~3 s) against a 1-2 s goal. Options: faster SAM variants (MobileSAM, EfficientSAM, SAM 2 Tiny), the laptop's Intel Arc GPU via OpenVINO, or a cloud GPU. This trade-off is also the Part C/D offloading story.
+- **Point-only prompt:** the glasses can't drag a box, and a single point sometimes picks the wrong outline in clutter (seen in feasibility). Mitigations: double-tap cycling; maybe auto-pick the outline with the most uniform depth. Test early.
+
+Model licenses (free, run locally; check before quoting in the report): Depth Anything V2 Small and SAM are Apache 2.0; Depth Anything V2 Base is CC BY-NC 4.0 (non-commercial); Depth Pro uses Apple's research license.
+
 ## Current focus: feasibility test
 
 The professor will approve Part B only if accuracy looks achievable. Pass bar: **corrected error under ~10% at 0.5 to 3 m**. Full steps are in `feasibility/README.md`.
