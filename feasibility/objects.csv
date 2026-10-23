@@ -1,0 +1,21 @@
+image,true_distance_m,true_width_cm,true_height_cm,ref,notes
+img_20261023_003854_005.jpg,1.00,14.0,19.0,1,reference box (Nature Valley) at 1 m
+img_20261023_003903_006.jpg,1.00,14.0,19.0,1,reference box (Nature Valley) at 1 m
+img_20261023_003911_007.jpg,2.00,14.0,19.0,1,reference box (Nature Valley) at 2 m
+img_20261023_003913_008.jpg,2.00,14.0,19.0,1,reference box (Nature Valley) at 2 m
+img_20261023_003920_009.jpg,2.50,14.0,19.0,0,box (Nature Valley) at 2.5 m
+img_20261023_003921_010.jpg,2.50,14.0,19.0,0,box (Nature Valley) at 2.5 m
+img_20261023_003049_001.jpg,1.00,21.6,27.8,0,white paper on white wall at 1 m (low contrast)
+img_20261023_003131_003.jpg,2.00,21.6,27.8,0,white paper on white wall at 2 m (low contrast)
+img_20261023_004457_011.jpg,1.00,61.0,36.5,0,monitor at 1 m
+img_20261023_004507_012.jpg,2.00,61.0,36.5,0,monitor at 2 m
+img_20261023_004515_013.jpg,2.50,61.0,36.5,0,monitor at 2.5 m (crosshair on its left edge; click the screen)
+img_20261023_004855_014.jpg,1.58,,90.0,0,chair at 1 m floor mark; non-flat; floor object: slant distance from 1.67 m eye height to 0.45 m center (est.); 42 cm is its depth; width not measured
+img_20261023_004907_015.jpg,2.34,,90.0,0,chair at 2 m floor mark; non-flat; floor object: slant distance from 1.67 m eye height to 0.45 m center (est.); width not measured
+img_20261023_004914_017.jpg,2.78,,90.0,0,chair at 2.5 m floor mark; non-flat; floor object: slant distance from 1.67 m eye height to 0.45 m center (est.); width not measured
+img_20261023_005833_000.jpg,1.67,36.0,55.0,0,suitcase at 1 m floor mark; floor object: slant distance from 1.67 m eye height to 0.33 m center (est.); looking down so height foreshortened
+img_20261023_005842_001.jpg,2.41,36.0,55.0,0,suitcase at 2 m floor mark; floor object: slant distance from 1.67 m eye height to 0.33 m center (est.)
+img_20261023_005849_002.jpg,2.84,36.0,55.0,0,suitcase at 2.5 m floor mark; floor object: slant distance from 1.67 m eye height to 0.33 m center (est.)
+img_20261023_010036_003.jpg,1.52,37.0,105.0,0,guitar at 1 m floor mark; floor object: slant distance from 1.67 m eye height to 0.52 m center (est.); looking down so height foreshortened
+img_20261023_010045_004.jpg,2.30,37.0,105.0,0,guitar at 2 m floor mark; floor object: slant distance from 1.67 m eye height to 0.52 m center (est.)
+img_20261023_010054_005.jpg,2.75,37.0,105.0,0,guitar at 2.5 m floor mark; floor object: slant distance from 1.67 m eye height to 0.52 m center (est.)

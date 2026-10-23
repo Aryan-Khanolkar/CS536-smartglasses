@@ -24,3 +24,8 @@ traces/
 # OS
 .DS_Store
 Thumbs.db
+
+# Feasibility photos stay local (like traces); the CSVs record what was measured
+feasibility/captures/
+feasibility/calib/
+feasibility/focal/
